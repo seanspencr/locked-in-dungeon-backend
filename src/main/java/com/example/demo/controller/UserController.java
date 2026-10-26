@@ -5,6 +5,7 @@ import com.example.demo.dto.user.CreateUserResponse;
 import com.example.demo.dto.user.UserDto;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,29 +17,25 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    private UserRepository userRepo;
+    private final UserService service;
     public UserController(
-        UserRepository userRepo
+        UserService service
     ){
-        this.userRepo = userRepo;
+        this.service = service;
     }
 
     @PostMapping("/create")
     public ResponseEntity<CreateUserResponse> createUser(@RequestBody  CreateUserRequest req ){
 
-        User user = new User();
-        user.setPassword(req.password());
-        user.setUsername(req.username());
-
-        var inserted = userRepo.save(user);
+        var res = this.service.createUser(req);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                new CreateUserResponse(UserDto.fromUser(inserted),  "Succes")
+                res
         );
     }
 
     @GetMapping("/all")
     public List<UserDto> getUsers(){
-        return userRepo.findAll().stream().map(UserDto::fromUser).toList();
+        return service.findAll().stream().map(UserDto::fromUser).toList();
     };
 }

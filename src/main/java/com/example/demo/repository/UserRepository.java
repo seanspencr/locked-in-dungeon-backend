@@ -8,4 +8,5 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(String username);
 }

@@ -29,15 +29,19 @@ public class User {
     @Column(name ="id", nullable = false, unique = true)
     private Long id;
 
-    @Size(max = 32) //ini constrain programmatical
+    @Size(max = 255) //ini constrain programmatical
     @NotNull()
-    @Column(name = "username", nullable = false, length = 32) // ini constraint yang ketanem di DB
+    @Column(name = "username", nullable = false, length = 255, unique = true) // ini constraint yang ketanem di DB
     private String username;
 
-    @Size(max = 32) //ini constrain programmatical
+    @Size(max = 255) //ini constrain programmatical
     @NotNull()
-    @Column(name = "password", nullable = false, length = 32) // ini constraint yang ketanem di DB
+    @Column(name = "password", nullable = false, length = 255) // ini constraint yang ketanem di DB
     private String password;
+
+    @ColumnDefault("USER")
+    @Column(name = "roles", nullable = false) // ini constraint yang ketanem di DB
+    private String roles;
 
     @ColumnDefault("now()")
     @CreationTimestamp
