@@ -3,28 +3,29 @@ package com.example.demo.services.user;
 import com.example.demo.dto.auth.SignupRequest;
 import com.example.demo.dto.auth.SignupResponse;
 import com.example.demo.dto.user.UserDto;
-import com.example.demo.exceptions.auth.RefreshTokenNotFoundException;
 import com.example.demo.exceptions.user.UserAlreadyExistException;
 import com.example.demo.exceptions.user.UserNotFoundException;
+import com.example.demo.model.Authority;
 import com.example.demo.model.User;
+import com.example.demo.repository.AuthorityRepository;
 import com.example.demo.repository.UserRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class UserService  {
 
     UserRepository userRepo;
     PasswordEncoder encoder;
-    public UserService(UserRepository userRepo, PasswordEncoder encoder){
+    AuthorityRepository authorityRepository;
+    public UserService(UserRepository userRepo, AuthorityRepository authorityRepository, PasswordEncoder encoder){
         this.userRepo = userRepo;
         this.encoder = encoder;
+        this.authorityRepository = authorityRepository;
     }
 
 
@@ -34,6 +35,17 @@ public class UserService  {
         return user.orElseThrow(() -> new UserNotFoundException("User is not found"));
     }
 
+    private Authority findOrCreateAuthority(String name){
+        return authorityRepository.findByName(name).orElseGet(
+                ()-> {
+                    Authority newAuth = new Authority();
+                    newAuth.setName(name);
+                    Authority saved = authorityRepository.save(newAuth);
+                    return  saved;
+                }
+        );
+    }
+
     public SignupResponse createUser(SignupRequest req) {
 
         var existing = userRepo.findByUsername(req.username());
@@ -41,11 +53,14 @@ public class UserService  {
           throw new UserAlreadyExistException("User already exist");
         }
 
+//        user.setPassword(req.password());
+
         User user = new User();
         user.setPassword(encoder.encode(req.password()));
-//        user.setPassword(req.password());
         user.setUsername(req.username());
-        user.setRoles("USER");
+        Set<Authority> auth = new HashSet<>();
+        auth.add(findOrCreateAuthority(Authority.ofUser().getName()));
+        user.setAuthorities(auth);
 
         try {
             var inserted = userRepo.save(user);
@@ -70,14 +85,12 @@ public class UserService  {
         return userRepo.findAll();
     }
 
-    public User refreshUserToken(String refreshToken) {
-        User user = userRepo.findByRefreshToken(refreshToken).orElseThrow(()->new RefreshTokenNotFoundException("Refresh token is invalid, please relogin"));
 
-//        TODO : validasi usia refresh token
+    public Optional<User> findByRefreshToken(String refreshToken) {
+        return userRepo.findByRefreshToken(refreshToken);
+    }
 
-//        TODO : rotate refresh token
-        user.setResfreshTokenIssued(Instant.now());
-        userRepo.save(user);
-        return user;
+    public User saveUser(User user) {
+        return userRepo.save(user);
     }
 }

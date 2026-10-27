@@ -13,6 +13,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 //@Setter(AccessLevel.PRIVATE)
 //@Getter(AccessLevel.PUBLIC)
@@ -39,15 +41,20 @@ public class User {
     @Column(name = "password", nullable = false, length = 255) // ini constraint yang ketanem di DB
     private String password;
 
-    @ColumnDefault("USER")
-    @Column(name = "roles", nullable = false) // ini constraint yang ketanem di DB
-    private String roles;
+    @ManyToMany
+    @JoinTable(
+            name = "user_authority",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id")
+    )
+    private Set<Authority> authorities = new HashSet<>();
 
     @Column(name="refresh_token", nullable = true)
     private String refreshToken;
 
     @Column(name="refresh_token_issued", nullable = true)
     private Instant resfreshTokenIssued;
+
 
     @ColumnDefault("now()")
     @CreationTimestamp

@@ -37,12 +37,12 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 //                        ini basic auth
-                        .requestMatchers("/auth/signup", "/auth/login").permitAll()
+                        .requestMatchers("/auth/signup", "/auth/login", "/auth/refresh").permitAll()
 
                         // Role-based endpoints
 //                        TODO : bneran pake rolenya
-                        .requestMatchers("/auth/user/**").hasAuthority("USER")
-                        .requestMatchers("/auth/admin/**").hasAuthority("ADMIN")
+//                        .requestMatchers("/auth/user/**").hasAuthority("USER")
+                        .requestMatchers("/user/all").hasAuthority("ADMIN")
 
                         // All other endpoints require authentication
                         .requestMatchers(
@@ -50,7 +50,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
 
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

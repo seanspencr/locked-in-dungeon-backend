@@ -1,5 +1,7 @@
 package com.example.demo.services.auth;
 
+import com.example.demo.model.Authority;
+import com.example.demo.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -10,9 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -23,9 +23,9 @@ public class JwtService {
     @Value("${jwt.secret}")
     public String SECRET;
 
-    public String generateToken(String username) { // Use username as username
+    public String generateToken(User user) { // Use username as username
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        return createToken(claims, user.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String username) {
