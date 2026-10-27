@@ -1,10 +1,11 @@
-package com.example.demo.services;
+package com.example.demo.services.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,8 @@ public class JwtService {
 
 
 //    dummy secret for testiing
-    public static final String SECRET = "5367566859703373367639792F423F452848284D6251655468576D5A71347437";
+    @Value("${jwt.secret}")
+    public String SECRET;
 
     public String generateToken(String username) { // Use username as username
         Map<String, Object> claims = new HashMap<>();

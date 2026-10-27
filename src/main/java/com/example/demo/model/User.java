@@ -43,6 +43,12 @@ public class User {
     @Column(name = "roles", nullable = false) // ini constraint yang ketanem di DB
     private String roles;
 
+    @Column(name="refresh_token", nullable = true)
+    private String refreshToken;
+
+    @Column(name="refresh_token_issued", nullable = true)
+    private Instant resfreshTokenIssued;
+
     @ColumnDefault("now()")
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)

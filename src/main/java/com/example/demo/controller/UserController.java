@@ -1,16 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.user.CreateUserRequest;
-import com.example.demo.dto.user.CreateUserResponse;
 import com.example.demo.dto.user.UserDto;
-import com.example.demo.model.User;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.services.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.example.demo.services.user.UserService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,16 +15,6 @@ public class UserController {
         UserService service
     ){
         this.service = service;
-    }
-
-    @PostMapping("/create")
-    public ResponseEntity<CreateUserResponse> createUser(@RequestBody  CreateUserRequest req ){
-
-        var res = this.service.createUser(req);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                res
-        );
     }
 
     @GetMapping("/all")

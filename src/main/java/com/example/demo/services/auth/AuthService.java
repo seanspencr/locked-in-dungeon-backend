@@ -1,9 +1,10 @@
-package com.example.demo.services;
+package com.example.demo.services.auth;
 
 import com.example.demo.dto.auth.LoginRequest;
 import com.example.demo.dto.auth.LoginResponse;
 import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.exceptions.user.UserWrongCredentialException;
+import com.example.demo.services.user.UserService;
 import org.springframework.stereotype.Service;
 
 @Service

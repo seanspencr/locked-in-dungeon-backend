@@ -1,26 +1,21 @@
-package com.example.demo.services;
+package com.example.demo.services.user;
 
-import com.example.demo.dto.user.CreateUserRequest;
-import com.example.demo.dto.user.CreateUserResponse;
+import com.example.demo.dto.auth.SignupRequest;
+import com.example.demo.dto.auth.SignupResponse;
 import com.example.demo.dto.user.UserDto;
+import com.example.demo.exceptions.auth.RefreshTokenNotFoundException;
 import com.example.demo.exceptions.user.UserAlreadyExistException;
 import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import jakarta.validation.ConstraintViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 @Service
 public class UserService  {
@@ -39,7 +34,7 @@ public class UserService  {
         return user.orElseThrow(() -> new UserNotFoundException("User is not found"));
     }
 
-    public CreateUserResponse createUser(CreateUserRequest req) {
+    public SignupResponse createUser(SignupRequest req) {
 
         var existing = userRepo.findByUsername(req.username());
         if(existing.isPresent()){
@@ -54,7 +49,7 @@ public class UserService  {
 
         try {
             var inserted = userRepo.save(user);
-            return new CreateUserResponse(
+            return new SignupResponse(
                     UserDto.fromUser(inserted),
                     "Success"
             );
@@ -73,5 +68,16 @@ public class UserService  {
 
     public List<User> findAll() {
         return userRepo.findAll();
+    }
+
+    public User refreshUserToken(String refreshToken) {
+        User user = userRepo.findByRefreshToken(refreshToken).orElseThrow(()->new RefreshTokenNotFoundException("Refresh token is invalid, please relogin"));
+
+//        TODO : validasi usia refresh token
+
+//        TODO : rotate refresh token
+        user.setResfreshTokenIssued(Instant.now());
+        userRepo.save(user);
+        return user;
     }
 }

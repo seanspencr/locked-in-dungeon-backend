@@ -35,12 +35,12 @@ public class SecurityConfig {
                 // Disable CSRF so POST requests work without tokens
                 .csrf(AbstractHttpConfigurer::disable)
 
-
-                // Allow ALL requests without authentication
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/welcome", "/auth/addNewUser", "/user/create", "/auth/login").permitAll()
+//                        ini basic auth
+                        .requestMatchers("/auth/signup", "/auth/login").permitAll()
 
                         // Role-based endpoints
+//                        TODO : bneran pake rolenya
                         .requestMatchers("/auth/user/**").hasAuthority("USER")
                         .requestMatchers("/auth/admin/**").hasAuthority("ADMIN")
 
@@ -51,16 +51,11 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
-
-
-//                        .anyRequest()
-//                        .permitAll()
                 )
 
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }
