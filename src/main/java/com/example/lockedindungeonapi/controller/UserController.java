@@ -1,19 +1,20 @@
 package com.example.lockedindungeonapi.controller;
 
+import com.example.lockedindungeonapi.dto.settings.ModifySettingsRequest;
 import com.example.lockedindungeonapi.dto.common.MessageResponse;
 import com.example.lockedindungeonapi.dto.user.RegisterFirebaseRequest;
 import com.example.lockedindungeonapi.dto.user.UserDto;
 import com.example.lockedindungeonapi.model.FirebaseEntity;
+import com.example.lockedindungeonapi.model.UserSettings;
 import com.example.lockedindungeonapi.services.auth.UserInfoDetails;
 import com.example.lockedindungeonapi.services.user.UserService;
-import com.google.api.gax.rpc.UnimplementedException;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,6 +61,18 @@ public class UserController {
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @PatchMapping("/settings")
+    public ResponseEntity<UserSettings> modifySettings(@AuthenticationPrincipal UserInfoDetails userInfo, @RequestBody ModifySettingsRequest req){
+        var updated = service.modifySettings(userInfo.getId(), req);
+        return ResponseEntity.status(HttpStatus.OK).body(updated);
+    }
+
+    @GetMapping("/settings")
+    public ResponseEntity<UserSettings> getUserSettings(@AuthenticationPrincipal UserInfoDetails user){
+        UserSettings settings = service.getUserSettings(user.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(settings);
     }
 
 

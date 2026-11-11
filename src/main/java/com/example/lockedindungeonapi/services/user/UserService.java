@@ -2,15 +2,18 @@ package com.example.lockedindungeonapi.services.user;
 
 import com.example.lockedindungeonapi.dto.auth.SignupRequest;
 import com.example.lockedindungeonapi.dto.auth.SignupResponse;
+import com.example.lockedindungeonapi.dto.settings.ModifySettingsRequest;
 import com.example.lockedindungeonapi.dto.user.UserDto;
 import com.example.lockedindungeonapi.exceptions.user.UserAlreadyExistException;
 import com.example.lockedindungeonapi.exceptions.user.UserNotFoundException;
 import com.example.lockedindungeonapi.model.Authority;
 import com.example.lockedindungeonapi.model.FirebaseEntity;
 import com.example.lockedindungeonapi.model.User;
+import com.example.lockedindungeonapi.model.UserSettings;
 import com.example.lockedindungeonapi.repository.AuthorityRepository;
 import com.example.lockedindungeonapi.repository.FirebaseEntityRepository;
 import com.example.lockedindungeonapi.repository.UserRepository;
+import com.example.lockedindungeonapi.repository.UserSettingsRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,14 +28,15 @@ public class UserService  {
     PasswordEncoder encoder;
     AuthorityRepository authorityRepository;
     FirebaseEntityRepository firebaseEntityRepository;
-    public UserService(UserRepository userRepo, AuthorityRepository authorityRepository, FirebaseEntityRepository firebaseEntityRepository, PasswordEncoder encoder){
+    UserSettingsRepository userSettingsRepo;
+
+    public UserService(UserRepository userRepo, PasswordEncoder encoder, AuthorityRepository authorityRepository, FirebaseEntityRepository firebaseEntityRepository, UserSettingsRepository userSettingRepo) {
         this.userRepo = userRepo;
         this.encoder = encoder;
         this.authorityRepository = authorityRepository;
         this.firebaseEntityRepository = firebaseEntityRepository;
+        this.userSettingsRepo = userSettingRepo;
     }
-
-
 
     public User findUserByUsername(String username){
         var user = userRepo.findByUsername(username);
@@ -108,5 +112,21 @@ public class UserService  {
         entity.setDeviceName(devicename);
         entity.setUser(user);
         return this.firebaseEntityRepository.save(entity);
+    }
+
+    public UserSettings getUserSettings(Long id) {
+
+        return userSettingsRepo.findByUserId(id).orElse(new UserSettings());
+    }
+
+    public UserSettings modifySettings(Long userId, ModifySettingsRequest req) {
+        var settings = userSettingsRepo.findByUserId(userId).orElse(new UserSettings(userRepo.getReferenceById(userId)));
+
+
+        req.showStats().ifPresent(settings::setShowStats);
+        req.showBlockingList().ifPresent(settings::setShowBlocklist);
+
+
+        return userSettingsRepo.save(settings);
     }
 }

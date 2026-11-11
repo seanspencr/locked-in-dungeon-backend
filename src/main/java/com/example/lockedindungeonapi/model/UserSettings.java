@@ -1,9 +1,14 @@
 package com.example.lockedindungeonapi.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
+@Getter
 public class UserSettings {
     @Id
     private Long id;
@@ -11,6 +16,7 @@ public class UserSettings {
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId //supaya mapping idenya ke userId
     @JoinColumn(name = "user_id") //joincolumn = table ini yang pegang foreign key
+    @JsonIgnore
     private User user;
 
     @Column(name = "show_stats")
@@ -20,9 +26,8 @@ public class UserSettings {
 
 
 
-    public UserSettings(boolean showStats, boolean showBlocklist) {
-        this.showStats = showStats;
-        this.showBlocklist = showBlocklist;
+    public UserSettings( User user) {
+        this.user = user;
     }
 
     public UserSettings() {

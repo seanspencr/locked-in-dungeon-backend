@@ -1,6 +1,7 @@
 package com.example.lockedindungeonapi.repository;
 
 import com.example.lockedindungeonapi.model.User;
+import com.example.lockedindungeonapi.model.UserSettings;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -13,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     
     Optional<User> findByRefreshToken(String refreshToken);
+
+
 }
