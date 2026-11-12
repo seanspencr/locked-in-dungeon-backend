@@ -1,14 +1,21 @@
 package com.example.lockedindungeonapi.services.follow;
 
+import com.example.lockedindungeonapi.dto.appusage.AppUsageBragContent;
+import com.example.lockedindungeonapi.dto.appusage.AppUsageBragRequest;
 import com.example.lockedindungeonapi.dto.follow.FriendListResponse;
+import com.example.lockedindungeonapi.exceptions.user.UserNotFoundException;
 import com.example.lockedindungeonapi.model.Follow;
 import com.example.lockedindungeonapi.model.User;
 import com.example.lockedindungeonapi.repository.FollowRepository;
 import com.example.lockedindungeonapi.repository.UserRepository;
+import com.example.lockedindungeonapi.services.auth.UserInfoDetails;
+import com.example.lockedindungeonapi.services.common.NotificationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -18,12 +25,17 @@ public class FollowService {
 
     private FollowRepository repo;
     private UserRepository userRepository;
+    private NotificationService notifService;
 
-    public FollowService(FollowRepository repo, UserRepository userRepository) {
+    private ObjectMapper objectMapper;
+
+
+    public FollowService(FollowRepository repo, UserRepository userRepository, NotificationService notifService, ObjectMapper objectMapper) {
         this.repo = repo;
         this.userRepository = userRepository;
+        this.notifService = notifService;
+        this.objectMapper = objectMapper;
     }
-
 
     public Follow follow(Long followerId, Long targetId){
         Follow follow = new Follow();
@@ -52,5 +64,32 @@ public class FollowService {
         follow.setTarget(userRepository.getReferenceById(targetId));
 
         repo.delete(follow);
+    }
+
+    public String brag(UserInfoDetails user, AppUsageBragRequest req) {
+        var userId = req.targetUserid();
+        User target = userRepository.findById(userId).orElseThrow(()->new UserNotFoundException("Failed to brag, user not found"));
+
+
+        var targetFirebaseEntities = target.getFirebaseEntities();
+        for(var firebaseEntity : targetFirebaseEntities){
+            var fid = firebaseEntity.getFid();
+
+            try {
+                String result = notifService.sendNotification(
+                        fid,
+                        "Message from " + user.getUsername(),
+                        req.content().message().orElse(""),
+                            req.content().toFcmDataMap(objectMapper)
+                        );
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return "Success";
+
     }
 }

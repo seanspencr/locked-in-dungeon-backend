@@ -1,6 +1,8 @@
 package com.example.lockedindungeonapi.controller;
 
 
+import com.example.lockedindungeonapi.dto.appusage.AppUsageBragContent;
+import com.example.lockedindungeonapi.dto.appusage.AppUsageBragRequest;
 import com.example.lockedindungeonapi.dto.common.MessageResponse;
 import com.example.lockedindungeonapi.dto.follow.FollowUserRequest;
 import com.example.lockedindungeonapi.dto.follow.FriendListResponse;
@@ -8,10 +10,8 @@ import com.example.lockedindungeonapi.model.Follow;
 import com.example.lockedindungeonapi.services.auth.UserInfoDetails;
 import com.example.lockedindungeonapi.services.follow.FollowService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,8 +20,10 @@ public class FollowController{
 
     private FollowService service;
 
+
     public FollowController(FollowService service) {
         this.service = service;
+
     }
 
     @PostMapping("/follow")
@@ -36,6 +38,13 @@ public class FollowController{
         this.service.unfollow(userInfo.getId(), req.userId());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new MessageResponse("Unfollow successful"));
+    }
+
+
+    @PostMapping("/brag")
+    ResponseEntity<MessageResponse> bragToFriend(@AuthenticationPrincipal UserInfoDetails user, @RequestBody AppUsageBragRequest req){
+        var result = this.service.brag(user, req);
+        return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(result));
     }
 
     @GetMapping("/all")
