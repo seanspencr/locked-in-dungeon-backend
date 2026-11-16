@@ -67,7 +67,9 @@ public class User {
     @Column(name = "updated_at", nullable = true)
     private Instant updatedAt;
 
-    @OneToOne(mappedBy = "user", optional = false, cascade = CascadeType.ALL) //mapped by = tabel ini ndak pegang foreign keynya
+    // optional = true: user lama bisa saja belum punya row user_settings, jadi jangan sampai
+    // load User gagal (ObjectRetrievalFailureException) hanya karena settings-nya belum ada
+    @OneToOne(mappedBy = "user", optional = true, cascade = CascadeType.ALL) //mapped by = tabel ini ndak pegang foreign keynya
     private UserSettings settings;
 
 

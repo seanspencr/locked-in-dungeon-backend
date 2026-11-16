@@ -46,4 +46,48 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
         """
     )
     Page<User> findMutualFriends(@Param("user") User user, Pageable pageable);
+
+    //    6. hanya follower: user yang follow kita tapi belum kita follow balik (exclude mutual)
+    @Query(
+            value = """
+            SELECT f1.follower FROM Follow f1
+            WHERE f1.target = :user
+            AND NOT EXISTS (
+                SELECT 1 FROM Follow f2
+                WHERE f2.follower = :user AND f2.target = f1.follower
+            )
+            ORDER BY f1.follower.username ASC
+        """,
+            countQuery = """
+            SELECT COUNT(f1) FROM Follow f1
+            WHERE f1.target = :user
+            AND NOT EXISTS (
+                SELECT 1 FROM Follow f2
+                WHERE f2.follower = :user AND f2.target = f1.follower
+            )
+        """
+    )
+    Page<User> findFollowersOnly(@Param("user") User user, Pageable pageable);
+
+    //    7. hanya following: user yang kita follow tapi belum follow balik (exclude mutual)
+    @Query(
+            value = """
+            SELECT f1.target FROM Follow f1
+            WHERE f1.follower = :user
+            AND NOT EXISTS (
+                SELECT 1 FROM Follow f2
+                WHERE f2.follower = f1.target AND f2.target = :user
+            )
+            ORDER BY f1.target.username ASC
+        """,
+            countQuery = """
+            SELECT COUNT(f1) FROM Follow f1
+            WHERE f1.follower = :user
+            AND NOT EXISTS (
+                SELECT 1 FROM Follow f2
+                WHERE f2.follower = f1.target AND f2.target = :user
+            )
+        """
+    )
+    Page<User> findFollowingOnly(@Param("user") User user, Pageable pageable);
 }

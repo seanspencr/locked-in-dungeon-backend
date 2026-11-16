@@ -9,6 +9,7 @@ import com.example.lockedindungeonapi.dto.follow.FriendListResponse;
 import com.example.lockedindungeonapi.model.Follow;
 import com.example.lockedindungeonapi.services.auth.UserInfoDetails;
 import com.example.lockedindungeonapi.services.follow.FollowService;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,6 +55,39 @@ public class FollowController{
             @RequestParam(name = "size", defaultValue = "10") int size){
         FriendListResponse friendList = service.getFriendList(user.getId(), page, size);
         return ResponseEntity.status(200).body(friendList);
+    }
+
+    @GetMapping("/search")
+    ResponseEntity<FriendListResponse> searchNewFriend(
+            @AuthenticationPrincipal UserInfoDetails user,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "query", defaultValue = "") String query
+    ){
+        FriendListResponse result = service.searchNewFriend(user.getId(), query, page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // hanya follower: yang follow kita tapi belum kita follow balik (mutual tidak ikut)
+    @GetMapping("/followers")
+    ResponseEntity<FriendListResponse> getFollowersOnly(
+            @AuthenticationPrincipal UserInfoDetails user,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ){
+        FriendListResponse result = service.getFollowersOnly(user.getId(), page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    // hanya following: yang kita follow tapi belum follow balik (mutual tidak ikut)
+    @GetMapping("/following")
+    ResponseEntity<FriendListResponse> getFollowingOnly(
+            @AuthenticationPrincipal UserInfoDetails user,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size
+    ){
+        FriendListResponse result = service.getFollowingOnly(user.getId(), page, size);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 }

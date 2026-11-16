@@ -69,6 +69,8 @@ public class UserService  {
         Set<Authority> auth = new HashSet<>();
         auth.add(findOrCreateAuthority(Authority.ofUser().getName()));
         user.setAuthorities(auth);
+        // settings default ikut dibuat, biar tiap user selalu punya row user_settings
+        user.setSettings(new UserSettings(user));
 
         try {
             var inserted = userRepo.save(user);

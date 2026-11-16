@@ -1,12 +1,12 @@
 package com.example.lockedindungeonapi.dto.follow;
 
-import com.example.lockedindungeonapi.model.Follow;
-import com.example.lockedindungeonapi.model.User;
+import com.example.lockedindungeonapi.dto.user.UserDto;
 
 import java.util.List;
 
-public record FriendListResponse(
-        List<User> paginatedUser,
+public record
+FriendListResponse(
+        List<UserDto> paginatedUser,
         Long totalFriends,
         Integer totalPages,
         Integer currentPage

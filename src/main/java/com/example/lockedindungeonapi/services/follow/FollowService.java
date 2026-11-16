@@ -3,6 +3,7 @@ package com.example.lockedindungeonapi.services.follow;
 import com.example.lockedindungeonapi.dto.appusage.AppUsageBragContent;
 import com.example.lockedindungeonapi.dto.appusage.AppUsageBragRequest;
 import com.example.lockedindungeonapi.dto.follow.FriendListResponse;
+import com.example.lockedindungeonapi.dto.user.UserDto;
 import com.example.lockedindungeonapi.exceptions.user.UserNotFoundException;
 import com.example.lockedindungeonapi.model.Follow;
 import com.example.lockedindungeonapi.model.User;
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
@@ -51,9 +53,39 @@ public class FollowService {
     public FriendListResponse getFriendList(Long userId, int pageNum, int pageSize) {
         var user = userRepository.getReferenceById(userId);
         Page<User> friendsPage = repo.findMutualFriends(user, PageRequest.of(pageNum, pageSize));
-        List<User> friendList = friendsPage.getContent();
 
-        return new FriendListResponse(friendList, friendsPage.getTotalElements(), friendsPage.getTotalPages(), friendsPage.getNumber());
+        return toFriendListResponse(friendsPage);
+    }
+
+    public FriendListResponse getFollowersOnly(Long userId, int pageNum, int pageSize) {
+        var user = userRepository.getReferenceById(userId);
+        Page<User> followersPage = repo.findFollowersOnly(user, PageRequest.of(pageNum, pageSize));
+
+        return toFriendListResponse(followersPage);
+    }
+
+    public FriendListResponse getFollowingOnly(Long userId, int pageNum, int pageSize) {
+        var user = userRepository.getReferenceById(userId);
+        Page<User> followingPage = repo.findFollowingOnly(user, PageRequest.of(pageNum, pageSize));
+
+        return toFriendListResponse(followingPage);
+    }
+
+    public FriendListResponse searchNewFriend(Long userId, String query, int pageNum, int pageSize) {
+        String keyword = query == null ? "" : query.trim();
+        Page<User> usersPage = userRepository.searchUsersWithoutFollow(
+                userId,
+                keyword,
+                PageRequest.of(pageNum, pageSize, Sort.by(Sort.Direction.ASC, "username"))
+        );
+
+        return toFriendListResponse(usersPage);
+    }
+
+    private FriendListResponse toFriendListResponse(Page<User> usersPage) {
+        List<UserDto> userList = usersPage.getContent().stream().map(UserDto::fromUser).toList();
+
+        return new FriendListResponse(userList, usersPage.getTotalElements(), usersPage.getTotalPages(), usersPage.getNumber());
     }
 
     public void unfollow(Long followerId, Long targetId) {
