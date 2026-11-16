@@ -38,3 +38,6 @@ out/
 *application.yaml
 .reasonix/**
 *.pem
+**.log
+**.gz
+secrets/**
