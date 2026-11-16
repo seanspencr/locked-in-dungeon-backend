@@ -2,6 +2,7 @@ package com.example.lockedindungeonapi.model;
 
 import jakarta.persistence.*;
 //import jakarta..*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -38,6 +39,7 @@ public class User {
     @Size(max = 255) //ini constrain programmatical
     @NotNull()
     @Column(name = "password", nullable = false, length = 255) // ini constraint yang ketanem di DB
+    @JsonIgnore // hash password jangan pernah ikut ke response JSON
     private String password;
 
     @ManyToMany
@@ -49,12 +51,15 @@ public class User {
     private Set<Authority> authorities = new HashSet<>();
 
     @Column(name="refresh_token", nullable = true)
+    @JsonIgnore
     private String refreshToken;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore // inverse side, kalau tidak di-ignore bikin cycle User -> FirebaseEntity -> User
     private Set<FirebaseEntity> firebaseEntities;
 
     @Column(name="refresh_token_issued", nullable = true)
+    @JsonIgnore
     private Instant resfreshTokenIssued;
 
 

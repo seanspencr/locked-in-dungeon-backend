@@ -1,5 +1,6 @@
 package com.example.lockedindungeonapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,6 +28,7 @@ public class Authority {
     private String name;
 
     @ManyToMany(mappedBy = "authorities")
+    @JsonIgnore // inverse side: Authority -> users -> authorities -> ... bikin cycle waktu serialisasi JSON
     private Set<User> users = new HashSet<>();
 
     public static Authority ofUser(){
