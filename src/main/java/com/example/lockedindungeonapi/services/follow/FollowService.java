@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
@@ -88,14 +89,13 @@ public class FollowService {
         return new FriendListResponse(userList, usersPage.getTotalElements(), usersPage.getTotalPages(), usersPage.getNumber());
     }
 
+    @Transactional
     public void unfollow(Long followerId, Long targetId) {
-        Follow follow = new Follow();
 
-//        get reference by id ini supaya gaperlu jalanin query select
-        follow.setFollower(userRepository.getReferenceById(followerId));
-        follow.setTarget(userRepository.getReferenceById(targetId));
-
-        repo.delete(follow);
+        repo.deleteByFollowerAndTarget(
+                userRepository.getReferenceById(followerId),
+                userRepository.getReferenceById(targetId)
+        );
     }
 
     public String brag(UserInfoDetails user, AppUsageBragRequest req) {

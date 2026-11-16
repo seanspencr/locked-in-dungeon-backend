@@ -39,7 +39,8 @@ public class FollowController{
     ResponseEntity<MessageResponse> unfollowUser(@AuthenticationPrincipal UserInfoDetails userInfo, @RequestBody FollowUserRequest req){
         this.service.unfollow(userInfo.getId(), req.userId());
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new MessageResponse("Unfollow successful"));
+        // 204 tidak boleh punya body, jadi message "Unfollow successful" memang tidak pernah kekirim
+        return ResponseEntity.noContent().build();
     }
 
 
