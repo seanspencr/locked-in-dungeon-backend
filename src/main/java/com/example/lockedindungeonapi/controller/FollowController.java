@@ -4,6 +4,7 @@ package com.example.lockedindungeonapi.controller;
 import com.example.lockedindungeonapi.dto.appusage.AppUsageBragContent;
 import com.example.lockedindungeonapi.dto.appusage.AppUsageBragRequest;
 import com.example.lockedindungeonapi.dto.common.MessageResponse;
+import com.example.lockedindungeonapi.dto.follow.FollowDto;
 import com.example.lockedindungeonapi.dto.follow.FollowUserRequest;
 import com.example.lockedindungeonapi.dto.follow.FriendListResponse;
 import com.example.lockedindungeonapi.model.Follow;
@@ -28,10 +29,10 @@ public class FollowController{
     }
 
     @PostMapping("/follow")
-    ResponseEntity<Follow> followUser(@AuthenticationPrincipal UserInfoDetails userInfo, @RequestBody FollowUserRequest req){
+    ResponseEntity<FollowDto> followUser(@AuthenticationPrincipal UserInfoDetails userInfo, @RequestBody FollowUserRequest req){
         Follow follow = this.service.follow(userInfo.getId(), req.userId());
 
-        return ResponseEntity.status(201).body(follow);
+        return ResponseEntity.status(201).body(FollowDto.fromFollow(follow));
     }
 
     @PostMapping("/unfollow")
